@@ -1,0 +1,76 @@
+#include <stdio.h>
+#include <math.h>
+
+// Function to perform modular exponentiation
+unsigned long long mod_exp(unsigned long long base, unsigned long long exp, unsigned long long mod) {
+    unsigned long long result = 1;
+    base = base % mod;
+    while (exp > 0) {
+        if (exp % 2 == 1) {
+            result = (result * base) % mod;
+        }
+        exp = exp >> 1;
+        base = (base * base) % mod;
+    }
+    return result;
+}
+
+int main() {
+    // Public key components
+    unsigned long long e = 65537;  // example large e
+    unsigned long long n = 999630013489;  // example large n
+    
+    // Array to store ciphertexts for plaintext values 0 to 25
+    unsigned long long ciphertexts[26];
+    
+    // Encrypt each plaintext value and store the result
+    for (int m = 0; m < 26; m++) {
+        ciphertexts[m] = mod_exp(m, e, n);
+    }
+    
+    // Print the ciphertexts and their corresponding plaintext values
+    printf("Plaintext to Ciphertext mapping:\n");
+    for (int m = 0; m < 26; m++) {
+        printf("Plaintext: %d, Ciphertext: %llu\n", m, ciphertexts[m]);
+    }
+    
+    // Example intercepted ciphertext
+    unsigned long long intercepted_ciphertext = 123456789012;  // replace with actual intercepted ciphertext
+    
+    // Decrypt the intercepted ciphertext
+    for (int m = 0; m < 26; m++) {
+        if (ciphertexts[m] == intercepted_ciphertext) {
+            printf("Intercepted ciphertext %llu corresponds to plaintext %d\n", intercepted_ciphertext, m);
+            break;
+        }
+    }
+    
+    return 0;
+}
+output:
+Plaintext: 0, Ciphertext: 0
+Plaintext: 1, Ciphertext: 1
+Plaintext: 2, Ciphertext: 0
+Plaintext: 3, Ciphertext: 948037549454
+Plaintext: 4, Ciphertext: 0
+Plaintext: 5, Ciphertext: 84369842568
+Plaintext: 6, Ciphertext: 464137628918
+Plaintext: 7, Ciphertext: 153071022788
+Plaintext: 8, Ciphertext: 136488043774
+Plaintext: 9, Ciphertext: 811306546145
+Plaintext: 10, Ciphertext: 820309097450
+Plaintext: 11, Ciphertext: 407341437063
+Plaintext: 12, Ciphertext: 865442065652
+Plaintext: 13, Ciphertext: 87961570513
+Plaintext: 14, Ciphertext: 38550620776
+Plaintext: 15, Ciphertext: 630942193007
+Plaintext: 16, Ciphertext: 0
+Plaintext: 17, Ciphertext: 865341201180
+Plaintext: 18, Ciphertext: 470021936659
+Plaintext: 19, Ciphertext: 722879397210
+Plaintext: 20, Ciphertext: 881894081941
+Plaintext: 21, Ciphertext: 165339091700
+Plaintext: 22, Ciphertext: 594170652171
+Plaintext: 23, Ciphertext: 423209376586
+Plaintext: 24, Ciphertext: 750692601574
+Plaintext: 25, Ciphertext: 984272735208

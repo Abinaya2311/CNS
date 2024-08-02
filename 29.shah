@@ -1,0 +1,97 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+
+#define STATE_SIZE 25  // 5x5 matrix
+#define LANE_SIZE 8    // Each lane is 64 bits (8 bytes)
+
+typedef struct {
+    uint64_t lanes[STATE_SIZE];  // 25 lanes, each 64 bits
+} State;
+
+void initialize_state(State *state) {
+    memset(state->lanes, 0, STATE_SIZE * sizeof(uint64_t));
+}
+
+void absorb(State *state, const uint8_t *block) {
+    for (int i = 0; i < STATE_SIZE; i++) {
+        state->lanes[i] ^= ((uint64_t *)block)[i];
+    }
+}
+
+int all_lanes_nonzero(const State *state) {
+    for (int i = 0; i < STATE_SIZE; i++) {
+        if (state->lanes[i] == 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+void print_state(const State *state) {
+    for (int i = 0; i < STATE_SIZE; i++) {
+        printf("Lane %d: 0x%016lx\n", i, state->lanes[i]);
+    }
+}
+
+int main() {
+    State state;
+    uint8_t block[STATE_SIZE * LANE_SIZE] = {0};  // 1024 bits block, 128 bytes
+
+    // Initialize block P0 with at least one nonzero bit in each lane
+    for (int i = 0; i < STATE_SIZE; i++) {
+        block[i * LANE_SIZE] = (i + 1);  // Simplified initialization
+    }
+
+    // Initialize state
+    initialize_state(&state);
+
+    printf("Initial state:\n");
+    print_state(&state);
+
+    // Absorb the first block
+    absorb(&state, block);
+
+    printf("\nState after absorbing P0:\n");
+    print_state(&state);
+
+    // Determine how long it will take before all lanes are non-zero
+    int rounds = 1;  // We have already absorbed one block
+    while (!all_lanes_nonzero(&state)) {
+        absorb(&state, block);
+        rounds++;
+    }
+
+    printf("\nTotal rounds to make all lanes non-zero: %d\n", rounds);
+    printf("Final state:\n");
+    print_state(&state);
+
+    return 0;
+}
+otput:
+Final state:
+Lane 0: 0x0000000000000001
+Lane 1: 0x0000000000000002
+Lane 2: 0x0000000000000003
+Lane 3: 0x0000000000000004
+Lane 4: 0x0000000000000005
+Lane 5: 0x0000000000000006
+Lane 6: 0x0000000000000007
+Lane 7: 0x0000000000000008
+Lane 8: 0x0000000000000009
+Lane 9: 0x000000000000000a
+Lane 10: 0x000000000000000b
+Lane 11: 0x000000000000000c
+Lane 12: 0x000000000000000d
+Lane 13: 0x000000000000000e
+Lane 14: 0x000000000000000f
+Lane 15: 0x0000000000000010
+Lane 16: 0x0000000000000011
+Lane 17: 0x0000000000000012
+Lane 18: 0x0000000000000013
+Lane 19: 0x0000000000000014
+Lane 20: 0x0000000000000015
+Lane 21: 0x0000000000000016
+Lane 22: 0x0000000000000017
+Lane 23: 0x0000000000000018
+Lane 24: 0x0000000000000019
